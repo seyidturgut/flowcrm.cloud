@@ -222,11 +222,14 @@ export default function LandingPage() {
                   ))}
                 </ul>
                 <Link href={`/register?plan=${p.slug}`}>
-                  <Button className={`w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs transition-all ${
-                    p.popular 
-                    ? "bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20" 
-                    : "variant-outline border-white/10 glass hover:bg-white/5"
-                  }`}>
+                  <Button 
+                    variant={p.popular ? "default" : "outline"}
+                    className={`w-full h-14 rounded-2xl font-black uppercase tracking-widest text-xs transition-all ${
+                      p.popular 
+                      ? "bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 text-white" 
+                      : "border-white/20 glass hover:bg-white/10 text-white"
+                    }`}
+                  >
                     Hemen Başla
                   </Button>
                 </Link>
