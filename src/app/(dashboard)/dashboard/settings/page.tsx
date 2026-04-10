@@ -1,12 +1,11 @@
 import { getTenantId } from "@/lib/tenant";
+import { headers } from "next/headers";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   Webhook, 
   Copy, 
   Code2, 
-  Settings as SettingsIcon, 
   ShieldCheck, 
   ExternalLink,
   ChevronRight
@@ -14,7 +13,14 @@ import {
 
 export default async function SettingsPage() {
   const companyId = await getTenantId();
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const headersList = await headers();
+  const forwardedHost = headersList.get("x-forwarded-host");
+  const host = forwardedHost ?? headersList.get("host");
+  const forwardedProto = headersList.get("x-forwarded-proto");
+  const protocol = forwardedProto ?? (host?.includes("localhost") ? "http" : "https");
+  const baseUrl = host
+    ? `${protocol}://${host}`
+    : process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const webhookUrl = `${baseUrl}/api/webhook/${companyId}`;
 
   return (
