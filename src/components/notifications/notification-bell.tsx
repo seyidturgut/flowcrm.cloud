@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Bell } from "lucide-react";
 
 import {
@@ -12,7 +13,28 @@ import { NotificationDropdown } from "@/components/notifications/notification-dr
 import { useRealtimeNotifications } from "@/components/notifications/realtime-notifications-provider";
 
 export function NotificationBell() {
+  const [mounted, setMounted] = useState(false);
   const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } = useRealtimeNotifications();
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => setMounted(true));
+
+    return () => {
+      window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        className="relative h-10 w-10 rounded-xl border border-white/5 hover:bg-white/5"
+      >
+        <Bell className="h-5 w-5 text-muted-foreground" />
+      </Button>
+    );
+  }
 
   return (
     <DropdownMenu>
