@@ -1,17 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { analyzeLeadQuality, extractLeadDataFromPayload, matchLeadToSalesRep } from "@/lib/ai";
+import { normalizeLeadSource, normalizeLeadSourceUrl } from "@/lib/lead-source";
+
+function asOptionalString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value.trim() : null;
+}
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ companyId: string }> }
 ) {
   const { companyId } = await params;
-  let rawBody: any;
+  let rawPayload: Prisma.InputJsonValue;
+  let rawBody: Record<string, unknown>;
 
   try {
-    rawBody = await req.json();
-  } catch (e) {
+    const parsedPayload = await req.json();
+    if (!parsedPayload || typeof parsedPayload !== "object" || Array.isArray(parsedPayload)) {
+      return NextResponse.json({ error: "Invalid JSON payload" }, { status: 400 });
+    }
+
+    rawPayload = parsedPayload as Prisma.InputJsonValue;
+    rawBody = parsedPayload as Record<string, unknown>;
+  } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
@@ -27,7 +40,7 @@ export async function POST(
   // 2. Ham veriyi logla
   const log = await prisma.webhookLog.create({
     data: {
-      payload: rawBody,
+      payload: rawPayload,
       company_id: companyId,
       status: "received",
     },
@@ -37,12 +50,38 @@ export async function POST(
     // 3. AI Veri Ayıklama
     const extracted = await extractLeadDataFromPayload(rawBody);
     
-    const firstName = extracted?.firstName || rawBody.firstName || rawBody.name || rawBody.ad || "Unknown";
-    const lastName = extracted?.lastName || rawBody.lastName || rawBody.soyad || "";
-    const email = extracted?.email || rawBody.email || rawBody.eposta || rawBody.mail || null;
-    const phone = extracted?.phone || rawBody.phone || rawBody.tel || rawBody.telefon || null;
-    const message = extracted?.message || rawBody.message || rawBody.not || rawBody.mesaj || "";
-    const source = rawBody.source || "AI Extracted Webhook";
+    const firstName =
+      extracted?.firstName ||
+      asOptionalString(rawBody.firstName) ||
+      asOptionalString(rawBody.name) ||
+      asOptionalString(rawBody.ad) ||
+      "Unknown";
+    const lastName =
+      extracted?.lastName ||
+      asOptionalString(rawBody.lastName) ||
+      asOptionalString(rawBody.soyad) ||
+      "";
+    const email =
+      extracted?.email ||
+      asOptionalString(rawBody.email) ||
+      asOptionalString(rawBody.eposta) ||
+      asOptionalString(rawBody.mail) ||
+      null;
+    const phone =
+      extracted?.phone ||
+      asOptionalString(rawBody.phone) ||
+      asOptionalString(rawBody.tel) ||
+      asOptionalString(rawBody.telefon) ||
+      null;
+    const message =
+      extracted?.message ||
+      asOptionalString(rawBody.message) ||
+      asOptionalString(rawBody.not) ||
+      asOptionalString(rawBody.mesaj) ||
+      "";
+    const normalizedSource = normalizeLeadSource(rawBody);
+    const normalizedSourceUrl = normalizeLeadSourceUrl(rawBody);
+    const source = normalizedSource || extracted?.utm_source || asOptionalString(rawBody.utm_source) || null;
 
     // 4. Contact Bul veya Oluştur
     let contact = await prisma.contact.findFirst({
@@ -88,11 +127,12 @@ export async function POST(
         company_id: companyId,
         status: "NEW",
         source: source,
-        utm_source: extracted?.utm_source || rawBody.utm_source || rawBody.source || null,
-        utm_medium: extracted?.utm_medium || rawBody.utm_medium || rawBody.medium || null,
-        utm_campaign: extracted?.utm_campaign || rawBody.utm_campaign || rawBody.campaign || null,
-        utm_term: extracted?.utm_term || rawBody.utm_term || rawBody.term || null,
-        utm_content: extracted?.utm_content || rawBody.utm_content || rawBody.content || null,
+        sourceUrl: normalizedSourceUrl,
+        utm_source: extracted?.utm_source || asOptionalString(rawBody.utm_source) || asOptionalString(rawBody.source) || null,
+        utm_medium: extracted?.utm_medium || asOptionalString(rawBody.utm_medium) || asOptionalString(rawBody.medium) || null,
+        utm_campaign: extracted?.utm_campaign || asOptionalString(rawBody.utm_campaign) || asOptionalString(rawBody.campaign) || null,
+        utm_term: extracted?.utm_term || asOptionalString(rawBody.utm_term) || asOptionalString(rawBody.term) || null,
+        utm_content: extracted?.utm_content || asOptionalString(rawBody.utm_content) || asOptionalString(rawBody.content) || null,
         sales_rep_id: bestMatchRepId, // AI'nın seçtiği temsilci
         notes: message ? {
           create: {
@@ -150,4 +190,3 @@ export async function POST(
     }, { status: 500 });
   }
 }
-

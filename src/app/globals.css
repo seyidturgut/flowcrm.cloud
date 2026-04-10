@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Inter", var(--font-sans);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: "Outfit", var(--font-sans);
+  --font-heading: var(--font-outfit);
   
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -37,31 +37,31 @@
 }
 
 :root {
-  --background: oklch(0.98 0.01 240);
-  --foreground: oklch(0.25 0.05 240);
+  --background: oklch(0.985 0.006 240);
+  --foreground: oklch(0.24 0.03 252);
   
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.25 0.05 240);
+  --card-foreground: oklch(0.24 0.03 252);
   
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.25 0.05 240);
+  --popover-foreground: oklch(0.24 0.03 252);
   
-  --primary: oklch(0.55 0.25 260); /* Vibrant Indigo */
-  --primary-foreground: oklch(0.98 0.01 240);
+  --primary: oklch(0.56 0.2 256);
+  --primary-foreground: oklch(0.99 0.005 240);
   
-  --secondary: oklch(0.95 0.02 240);
-  --secondary-foreground: oklch(0.4 0.15 260);
+  --secondary: oklch(0.96 0.012 235);
+  --secondary-foreground: oklch(0.34 0.06 252);
   
-  --muted: oklch(0.92 0.01 240);
-  --muted-foreground: oklch(0.5 0.05 240);
+  --muted: oklch(0.95 0.01 240);
+  --muted-foreground: oklch(0.5 0.03 248);
   
-  --accent: oklch(0.9 0.1 260 / 10%);
-  --accent-foreground: oklch(0.5 0.25 260);
+  --accent: oklch(0.94 0.03 232);
+  --accent-foreground: oklch(0.42 0.09 248);
   
   --destructive: oklch(0.6 0.2 20);
-  --border: oklch(0.9 0.01 240);
-  --input: oklch(0.9 0.01 240);
-  --ring: oklch(0.55 0.25 260 / 50%);
+  --border: oklch(0.92 0.01 240);
+  --input: oklch(0.92 0.01 240);
+  --ring: oklch(0.56 0.2 256 / 42%);
   
   --radius: 0.75rem;
 }
@@ -95,6 +95,9 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   * {
     @apply border-border outline-ring/50 transition-colors duration-200;
   }

@@ -13,8 +13,6 @@ import {
   PieChart, 
   Pie, 
   Cell,
-  LineChart,
-  Line,
   AreaChart,
   Area
 } from "recharts";
@@ -39,8 +37,39 @@ import { getMarketingAnalytics } from "@/actions/analytics";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 
+type SourceDistributionItem = {
+  name: string;
+  value: number;
+  avgScore: number;
+};
+
+type CampaignPerformanceItem = {
+  name: string;
+  total: number;
+  won: number;
+  lost: number;
+  winRate: number;
+  avgScore: number;
+};
+
+type GrowthDataItem = {
+  date: string;
+  count: number;
+};
+
+type MarketingAnalyticsData = {
+  sourceDistribution: SourceDistributionItem[];
+  campaignPerformance: CampaignPerformanceItem[];
+  growthData: GrowthDataItem[];
+  summary: {
+    totalLeads: number;
+    averageAiScore: number;
+    hotLeadsCount: number;
+  };
+};
+
 export default function MarketingAnalyticsPage() {
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<MarketingAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,6 +87,10 @@ export default function MarketingAnalyticsPage() {
         </div>
       </div>
     );
+  }
+
+  if (!data) {
+    return null;
   }
 
   const { sourceDistribution, campaignPerformance, growthData, summary } = data;
@@ -142,7 +175,7 @@ export default function MarketingAnalyticsPage() {
               <Activity className="h-5 w-5 text-primary" />
               Kanal Bazlı Dağılım
             </CardTitle>
-            <CardDescription className="text-xs font-semibold italic opacity-60">Leadlerin hangi UTM kaynaklarından geldiği.</CardDescription>
+            <CardDescription className="text-xs font-semibold italic opacity-60">Leadlerin hangi kaynak ve origin alanlarından geldiği.</CardDescription>
           </CardHeader>
           <CardContent className="h-[300px] pt-4">
             <ResponsiveContainer width="100%" height="100%">
@@ -157,7 +190,7 @@ export default function MarketingAnalyticsPage() {
                   dataKey="value"
                   label={({ name, percent }) => `${name} (%${percent ? (percent * 100).toFixed(0) : 0})`}
                 >
-                  {sourceDistribution.map((entry: any, index: number) => (
+                  {sourceDistribution.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -241,8 +274,8 @@ export default function MarketingAnalyticsPage() {
 
         <div className="space-y-4">
           {campaignPerformance
-            .filter((c: any) => c.winRate < 10 && c.total > 5)
-            .map((c: any, i: number) => (
+            .filter((c) => c.winRate < 10 && c.total > 5)
+            .map((c, i: number) => (
               <div key={i} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all">
                 <div className="flex flex-col">
                   <span className="font-bold text-sm tracking-tight">{c.name}</span>
@@ -255,7 +288,7 @@ export default function MarketingAnalyticsPage() {
               </div>
             ))}
           
-          {campaignPerformance.filter((c: any) => c.winRate < 10 && c.total > 5).length === 0 && (
+          {campaignPerformance.filter((c) => c.winRate < 10 && c.total > 5).length === 0 && (
             <div className="text-center py-8 opacity-50 italic text-sm font-medium">
                Şu an için kritik bir bütçe sızıntısı tespit edilmedi. Tüm kanallar sağlıklı görünüyor.
             </div>

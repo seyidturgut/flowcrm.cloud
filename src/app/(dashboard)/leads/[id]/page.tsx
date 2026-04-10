@@ -4,22 +4,19 @@ import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { 
-  User as UserIcon, 
   Mail, 
   Phone, 
   Calendar, 
-  Globe, 
   Clock, 
   MessageSquare,
   History,
-  MoreVertical,
-  CheckCircle2,
   ArrowRight,
   Sparkles,
   Flame,
   Zap,
   Cloud,
   RefreshCcw,
+  ExternalLink,
   UserPlus
 } from "lucide-react";
 
@@ -33,6 +30,7 @@ import { AddNoteForm } from "./components/add-note-form";
 import { StatusSelect } from "./components/status-select";
 import { RepSelect } from "./components/rep-select";
 import { EditLeadDialog } from "./components/edit-lead-dialog";
+import { getLeadSourceLabel } from "@/lib/lead-source";
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -61,6 +59,8 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
     WON: "KAZANILDI",
     LOST: "KAYBEDİLDİ",
   };
+
+  const sourceLabel = getLeadSourceLabel(lead);
 
   return (
     <div className="flex flex-col gap-8 pb-20">
@@ -135,12 +135,26 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               <div className="space-y-4 pt-2">
                 <div className="flex flex-col">
                   <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-1">Kaynak</span>
-                  <Badge variant="secondary" className="w-fit text-[10px] bg-white/5 border-white/5">{lead.source || "Organik"}</Badge>
+                  <Badge variant="secondary" className="w-fit text-[10px] bg-white/5 border-white/5">{sourceLabel}</Badge>
                 </div>
+                {lead.sourceUrl && (
+                  <div className="flex flex-col">
+                    <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-1">Lead URL</span>
+                    <a
+                      href={lead.sourceUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex w-fit items-center gap-2 text-sm font-medium text-primary underline decoration-primary/30 underline-offset-4 transition hover:text-primary/80"
+                    >
+                      {lead.sourceUrl}
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  </div>
+                )}
                 {lead.utm_source && (
                   <div className="flex flex-col">
                     <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mb-1">Kampanya Bilgisi</span>
-                    <span className="text-sm font-medium italic opacity-80">{lead.utm_source} / {lead.utm_medium}</span>
+                    <span className="text-sm font-medium italic opacity-80">{lead.utm_source}{lead.utm_medium ? ` / ${lead.utm_medium}` : ""}</span>
                   </div>
                 )}
               </div>
@@ -240,7 +254,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
                     <label className="text-[11px] font-black uppercase text-muted-foreground tracking-[0.2em] opacity-60 italic">Yapay Zeka Yorumu</label>
                     <div className="p-6 rounded-2xl bg-primary/5 border border-primary/10 relative shadow-inner">
                        <p className="text-sm leading-relaxed italic text-foreground font-semibold">
-                        "{lead.aiReasoning}"
+                        &ldquo;{lead.aiReasoning}&rdquo;
                       </p>
                     </div>
                   </div>

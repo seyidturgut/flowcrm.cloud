@@ -7,23 +7,42 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { format, formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
 import Link from "next/link";
 import {
   Pagination,
   PaginationContent,
   PaginationItem,
-  PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Sparkles, Flame, Zap, Cloud, MoreHorizontal, Mail, Phone, ExternalLink } from "lucide-react";
+import { Flame, Zap, Cloud, MoreHorizontal, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getLeadSourceLabel } from "@/lib/lead-source";
 
 interface LeadsTableProps {
-  leads: any[];
+  leads: Array<{
+    id: string;
+    status: string;
+    source: string | null;
+    utm_source: string | null;
+    aiScore: number | null;
+    aiLabel: string | null;
+    createdAt: Date | string;
+    contact: {
+      firstName: string;
+      lastName: string;
+      email: string | null;
+    };
+    salesRep: {
+      user: {
+        name: string | null;
+        email: string;
+      };
+    } | null;
+  }>;
   meta: {
     total: number;
     page: number;
@@ -120,7 +139,7 @@ export function LeadsTable({ leads, meta }: LeadsTableProps) {
                   </TableCell>
                   <TableCell>
                     <Badge variant="ghost" className="text-[10px] font-bold text-muted-foreground capitalize bg-white/5 border border-white/5">
-                      {lead.source || "Manual"}
+                      {getLeadSourceLabel(lead)}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-[11px] font-medium italic">

@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { getTenantId } from "@/lib/tenant";
+import { getLeadSourceLabel } from "@/lib/lead-source";
 
 export async function getMarketingAnalytics() {
   const companyId = await getTenantId();
@@ -10,20 +11,7 @@ export async function getMarketingAnalytics() {
     throw new Error("Company ID not found");
   }
 
-  // 1. UTM Source Distribution
-  const sourceStats = await prisma.lead.groupBy({
-    by: ['utm_source'],
-    where: { company_id: companyId },
-    _count: {
-      id: true
-    },
-    _avg: {
-      aiScore: true
-    }
-  });
-
-  // 2. Campaign Success (Status by Campaign)
-  // We need to fetch and then group in JS since groupBy is limited for nested logic
+  // Fetch and group in JS so source labels follow the same normalization order everywhere.
   const leads = await prisma.lead.findMany({
     where: { company_id: companyId },
     select: {
@@ -42,7 +30,7 @@ export async function getMarketingAnalytics() {
 
   leads.forEach(lead => {
     const campaign = lead.utm_campaign || "Diğer / Tanımsız";
-    const source = lead.utm_source || lead.source || "Bilinmeyen";
+    const source = getLeadSourceLabel(lead);
 
     // Campaign aggregation
     if (!campaignData[campaign]) {

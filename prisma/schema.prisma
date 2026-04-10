@@ -102,6 +102,7 @@ model Lead {
   id            String      @id @default(cuid())
   status        LeadStatus  @default(NEW)
   source        String?
+  sourceUrl     String?     @map("source_url")
   utm_source    String?
   utm_medium    String?
   utm_campaign  String?
