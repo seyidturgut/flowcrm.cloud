@@ -139,10 +139,6 @@ const previewRules = [
   "Mesai dışı formlar -> Sabah kuyruğu",
 ];
 
-function clamp(value: number, min = 0, max = 1) {
-  return Math.min(max, Math.max(min, value));
-}
-
 function usePrefersReducedMotion() {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
@@ -158,71 +154,34 @@ function usePrefersReducedMotion() {
   return prefersReducedMotion;
 }
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
+function useMountedMotion(disabled: boolean) {
+  const [entered, setEntered] = useState(() => disabled);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 767px)");
-    const update = () => setIsMobile(mediaQuery.matches);
-
-    update();
-    mediaQuery.addEventListener("change", update);
-    return () => mediaQuery.removeEventListener("change", update);
-  }, []);
-
-  return isMobile;
-}
-
-function useScrollSceneProgress(ref: React.RefObject<HTMLElement | null>, enabled: boolean) {
-  const [progress, setProgress] = useState(enabled ? 0 : 1);
-
-  useEffect(() => {
-    if (!enabled || !ref.current) {
+    if (disabled) {
       return;
     }
 
-    let frame = 0;
-
-    const update = () => {
-      const element = ref.current;
-      if (!element) return;
-
-      const rect = element.getBoundingClientRect();
-      const viewport = window.innerHeight;
-      const total = Math.max(1, rect.height - viewport);
-      const next = clamp((-rect.top) / total);
-      setProgress(next);
-      frame = 0;
-    };
-
-    const onScroll = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(update);
-    };
-
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    const frame = window.requestAnimationFrame(() => setEntered(true));
 
     return () => {
-      if (frame) {
-        window.cancelAnimationFrame(frame);
-      }
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.cancelAnimationFrame(frame);
     };
-  }, [enabled, ref]);
+  }, [disabled]);
 
-  return progress;
+  return entered;
 }
 
 function useReveal() {
   const ref = useRef<HTMLElement | null>(null);
-  const [visible, setVisible] = useState(true);
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const [visible, setVisible] = useState(() => prefersReducedMotion);
 
   useEffect(() => {
     const node = ref.current;
-    if (!node) return;
+    if (!node || prefersReducedMotion) {
+      return;
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -231,22 +190,21 @@ function useReveal() {
           observer.disconnect();
         }
       },
-      { threshold: 0.18 }
+      { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
     );
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, []);
+  }, [prefersReducedMotion]);
 
   return { ref, visible };
 }
 
-function mix(start: number, end: number, progress: number) {
-  return start + (end - start) * progress;
-}
-
-function rangeProgress(progress: number, start: number, end: number) {
-  return clamp((progress - start) / (end - start));
+function fadeUpStyle(visible: boolean, y = 24) {
+  return {
+    opacity: visible ? 1 : 0.999,
+    transform: `translateY(${visible ? 0 : y}px)`,
+  };
 }
 
 function SectionEyebrow({ children }: { children: React.ReactNode }) {
@@ -316,8 +274,9 @@ function RevealSection({
     <section
       ref={ref}
       {...props}
+      style={fadeUpStyle(visible, 20)}
       className={`${className} transition-[opacity,transform] duration-[1200ms] ease-out ${
-        visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-100"
+        visible ? "translate-y-0 opacity-100" : "translate-y-0 opacity-100"
       }`}
     >
       {children}
@@ -326,49 +285,17 @@ function RevealSection({
 }
 
 function HeroScene() {
-  const sectionRef = useRef<HTMLElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-  const isMobile = useIsMobile();
-  const animated = !prefersReducedMotion && !isMobile;
-  const progress = useScrollSceneProgress(sectionRef, animated);
-
-  const textProgress = animated ? rangeProgress(progress, 0.02, 0.34) : 1;
-  const cardProgress = animated ? rangeProgress(progress, 0.18, 0.7) : 1;
-  const settleProgress = animated ? rangeProgress(progress, 0.55, 1) : 1;
-
-  const textStyle = {
-                opacity: progress === 0 ? 1 : mix(0.8, 1, textProgress),
-    transform: `translate3d(0, ${mix(42, 0, textProgress)}px, 0)`,
-  };
-
-  const mockupStyle = {
-                opacity: progress === 0 ? 1 : mix(0.78, 1, cardProgress),
-    transform: `translate3d(${mix(34, 0, settleProgress)}px, ${mix(30, 0, cardProgress)}px, 0) scale(${mix(0.9, 1.02, cardProgress)})`,
-  };
-
-  const leftPanelStyle = {
-    opacity: progress === 0 ? 1 : mix(0.15, 1, settleProgress),
-    transform: `translate3d(${mix(-56, 0, settleProgress)}px, ${mix(24, 0, settleProgress)}px, 0)`,
-  };
-
-  const rightPanelStyle = {
-    opacity: progress === 0 ? 1 : mix(0.15, 1, settleProgress),
-    transform: `translate3d(${mix(56, 0, settleProgress)}px, ${mix(24, 0, settleProgress)}px, 0)`,
-  };
-
-  const statStyle = (index: number) => {
-    const staged = rangeProgress(progress, 0.2 + index * 0.08, 0.5 + index * 0.08);
-    return {
-      opacity: progress === 0 ? 1 : mix(0.82, 1, staged),
-      transform: `translate3d(0, ${mix(28, 0, staged)}px, 0) scale(${mix(0.96, 1, staged)})`,
-    };
-  };
+  const entered = useMountedMotion(prefersReducedMotion);
 
   return (
-    <section ref={sectionRef} className={animated ? "relative z-10 h-[220vh]" : "relative z-10"}>
-      <div className={animated ? "sticky top-20 px-4 pb-16 pt-10 sm:px-6 lg:px-8 lg:pb-24" : "px-4 pb-16 pt-10 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24"}>
+    <section className="relative z-10 px-4 pb-16 pt-10 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24">
+      <div>
         <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.03fr_0.97fr] lg:gap-16">
-          <div className="max-w-2xl" style={textStyle}>
+          <div
+            className="max-w-2xl transition-[opacity,transform] duration-[900ms] ease-out"
+            style={fadeUpStyle(entered, 28)}
+          >
             <SectionEyebrow>Yapay Zeka destekli lead operasyonu</SectionEyebrow>
 
             <h1 className="mt-6 max-w-xl text-5xl font-semibold leading-[0.93] tracking-[-0.065em] text-slate-950 sm:text-6xl lg:text-7xl">
@@ -406,8 +333,8 @@ function HeroScene() {
               {stats.map((stat, index) => (
                 <div
                   key={stat.label}
-                  style={statStyle(index)}
-                  className="rounded-[22px] border border-white/80 bg-white/82 p-4 shadow-[0_20px_46px_-30px_rgba(15,23,42,0.3)] backdrop-blur transition-transform duration-300"
+                  style={fadeUpStyle(entered, 18 + index * 8)}
+                  className="rounded-[22px] border border-white/80 bg-white/82 p-4 shadow-[0_20px_46px_-30px_rgba(15,23,42,0.3)] backdrop-blur transition-[opacity,transform] duration-[900ms]"
                 >
                   <div className="text-2xl font-semibold tracking-[-0.04em] text-slate-950">{stat.value}</div>
                   <div className="mt-1 text-sm leading-6 text-slate-600">{stat.label}</div>
@@ -417,12 +344,15 @@ function HeroScene() {
           </div>
 
           <div className="relative min-h-[34rem]">
-            <div
-              className="absolute inset-x-12 top-8 h-56 rounded-full bg-[radial-gradient(circle,_rgba(27,116,255,0.22),_transparent_68%)] blur-3xl"
-              style={{ transform: `translate3d(0, ${mix(0, -22, progress)}px, 0)` }}
-            />
+            <div className="absolute inset-x-12 top-8 h-56 rounded-full bg-[radial-gradient(circle,_rgba(27,116,255,0.22),_transparent_68%)] blur-3xl" />
 
-            <div className="relative mx-auto max-w-[42rem]" style={mockupStyle}>
+            <div
+              className="relative mx-auto max-w-[42rem] transition-[opacity,transform] duration-[1000ms] ease-out"
+              style={{
+                opacity: entered ? 1 : 0.999,
+                transform: `translateY(${entered ? 0 : 30}px) scale(${entered ? 1 : 0.985})`,
+              }}
+            >
               <div className="relative overflow-hidden rounded-[30px] border border-white/75 bg-white/84 p-3 shadow-[0_34px_90px_-40px_rgba(15,23,42,0.34)] backdrop-blur-xl">
                 <div className="rounded-[26px] border border-slate-200/80 bg-[linear-gradient(180deg,#fbfdff_0%,#edf5ff_100%)] p-4 sm:p-5">
                   <div className="flex items-center justify-between rounded-[20px] border border-white/80 bg-white/88 px-4 py-3 shadow-sm">
@@ -447,15 +377,11 @@ function HeroScene() {
 
                       <div className="mt-4 space-y-3">
                         {previewLeads.map((lead, index) => {
-                          const staged = animated ? rangeProgress(progress, 0.26 + index * 0.08, 0.52 + index * 0.08) : 1;
                           return (
                             <div
                               key={lead.name}
-                              style={{
-                                opacity: mix(0.25, 1, staged),
-                                transform: `translate3d(0, ${mix(26, 0, staged)}px, 0)`,
-                              }}
-                              className="rounded-2xl border border-white/10 bg-white/5 p-3 transition duration-300 hover:bg-white/8"
+                              style={fadeUpStyle(entered, 20 + index * 8)}
+                              className="rounded-2xl border border-white/10 bg-white/5 p-3 transition-[opacity,transform,background-color] duration-[900ms] hover:bg-white/8"
                             >
                               <div className="flex items-start justify-between gap-3">
                                 <div>
@@ -474,8 +400,8 @@ function HeroScene() {
 
                     <div className="space-y-4">
                       <div
-                        style={rightPanelStyle}
-                        className="rounded-[24px] border border-slate-200/80 bg-white p-4 shadow-sm"
+                        style={fadeUpStyle(entered, 18)}
+                        className="rounded-[24px] border border-slate-200/80 bg-white p-4 shadow-sm transition-[opacity,transform] duration-[900ms]"
                       >
                         <div className="flex items-center gap-3">
                           <div className="flex size-10 items-center justify-center rounded-2xl bg-sky-50 text-sky-700">
@@ -491,19 +417,18 @@ function HeroScene() {
                         </div>
                       </div>
 
-                      <div style={leftPanelStyle} className="rounded-[24px] border border-slate-200/80 bg-white p-4 shadow-sm">
+                      <div
+                        style={fadeUpStyle(entered, 26)}
+                        className="rounded-[24px] border border-slate-200/80 bg-white p-4 shadow-sm transition-[opacity,transform] duration-[1000ms]"
+                      >
                         <div className="text-sm font-medium text-slate-500">Atama mantığı</div>
                         <div className="mt-3 space-y-3">
                           {previewRules.map((rule, index) => {
-                            const staged = animated ? rangeProgress(progress, 0.42 + index * 0.06, 0.75 + index * 0.06) : 1;
                             return (
                               <div
                                 key={rule}
-                                style={{
-                                  opacity: mix(0.2, 1, staged),
-                                  transform: `translate3d(${mix(18, 0, staged)}px, 0, 0)`,
-                                }}
-                                className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2"
+                                style={fadeUpStyle(entered, 14 + index * 6)}
+                                className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2 transition-[opacity,transform] duration-[900ms]"
                               >
                                 <span className="text-sm text-slate-700">{rule}</span>
                                 <ChevronRight className="size-4 text-slate-400" />
@@ -525,49 +450,39 @@ function HeroScene() {
 }
 
 function ProductPreviewScene() {
-  const sectionRef = useRef<HTMLElement | null>(null);
   const prefersReducedMotion = usePrefersReducedMotion();
-  const isMobile = useIsMobile();
-  const animated = !prefersReducedMotion && !isMobile;
-  const progress = useScrollSceneProgress(sectionRef, animated);
-
-  const frameProgress = animated ? rangeProgress(progress, 0.05, 0.45) : 1;
-  const copyProgress = animated ? rangeProgress(progress, 0.18, 0.72) : 1;
+  const { ref, visible } = useReveal();
+  const entered = useMountedMotion(prefersReducedMotion);
+  const active = prefersReducedMotion ? true : visible && entered;
 
   return (
-    <section ref={sectionRef} className={animated ? "relative z-10 h-[190vh] px-4 py-20 sm:px-6 lg:px-8" : "relative z-10 px-4 py-20 sm:px-6 lg:px-8"}>
-      <div className={animated ? "sticky top-24" : ""}>
+    <section ref={ref} className="relative z-10 px-4 py-20 sm:px-6 lg:px-8">
+      <div>
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
           <div
             style={{
-              opacity: mix(0.45, 1, frameProgress),
-              transform: `translate3d(${mix(-40, 0, frameProgress)}px, ${mix(42, 0, frameProgress)}px, 0) scale(${mix(0.92, 1, frameProgress)})`,
+              opacity: active ? 1 : 0.999,
+              transform: `translateY(${active ? 0 : 26}px) scale(${active ? 1 : 0.99})`,
             }}
-            className="overflow-hidden rounded-[34px] border border-slate-200/80 bg-slate-950 p-4 shadow-[0_36px_80px_-42px_rgba(15,23,42,0.64)] sm:p-5"
+            className="overflow-hidden rounded-[34px] border border-slate-200/80 bg-slate-950 p-4 shadow-[0_36px_80px_-42px_rgba(15,23,42,0.64)] transition-[opacity,transform] duration-[1000ms] ease-out sm:p-5"
           >
             <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-slate-900">
-              <div
-                className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.24),_transparent_34%)]"
-                style={{ transform: `translate3d(${mix(0, 20, progress)}px, ${mix(0, -18, progress)}px, 0)` }}
-              />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.24),_transparent_34%)]" />
               <div className="relative aspect-[16/10]">
                 <Image
                   src="/hero-mockup.png"
                   alt="FlowCRM panel önizlemesi"
                   fill
                   className="object-cover opacity-90"
-                  style={{ transform: `scale(${mix(1.05, 1, frameProgress)}) translate3d(0, ${mix(12, 0, frameProgress)}px, 0)` }}
+                  style={{ transform: `scale(${active ? 1 : 1.02}) translateY(${active ? 0 : 10}px)` }}
                 />
               </div>
             </div>
           </div>
 
           <div
-            style={{
-              opacity: mix(0.25, 1, copyProgress),
-              transform: `translate3d(${mix(44, 0, copyProgress)}px, ${mix(32, 0, copyProgress)}px, 0)`,
-            }}
-            className="max-w-xl"
+            style={fadeUpStyle(active, 28)}
+            className="max-w-xl transition-[opacity,transform] duration-[1000ms] ease-out"
           >
             <SectionEyebrow>Ürün Önizleme</SectionEyebrow>
             <h2 className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl">
@@ -583,15 +498,11 @@ function ProductPreviewScene() {
                 "Temsilcileri net atama ve takip durumuyla aynı hizada tut.",
                 "Yakalamadan aksiyona daha az tıklama ve daha az sürtünmeyle geç.",
               ].map((item, index) => {
-                const staged = animated ? rangeProgress(progress, 0.26 + index * 0.1, 0.62 + index * 0.1) : 1;
                 return (
                   <div
                     key={item}
-                    style={{
-                      opacity: mix(0.2, 1, staged),
-                      transform: `translate3d(${mix(26, 0, staged)}px, ${mix(20, 0, staged)}px, 0)`,
-                    }}
-                    className="flex items-start gap-3 rounded-2xl bg-white/85 p-4 shadow-sm"
+                    style={fadeUpStyle(active, 18 + index * 8)}
+                    className="flex items-start gap-3 rounded-2xl bg-white/85 p-4 shadow-sm transition-[opacity,transform] duration-[900ms]"
                   >
                     <div className="mt-0.5 flex size-6 items-center justify-center rounded-full bg-sky-100 text-sky-700">
                       <Check className="size-3.5" />
@@ -674,7 +585,7 @@ export function HomepageScrollExperience() {
             <div className="max-w-2xl">
               <SectionEyebrow>Neden FlowCRM</SectionEyebrow>
               <h2 className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl">
-                Inbound leadler için tek operasyon sistemi.
+                Gelen leadler için tek operasyon sistemi.
               </h2>
               <p className="mt-5 text-base leading-7 text-slate-600 sm:text-lg">
                 Daha iyi görünürlük, daha hızlı atama ve daha temiz satış akışı isteyen hizmet işletmeleri için tasarlandı.
