@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma
+
+# Deployment artifacts
+SONv1.zip
+database_dump.sql
+.next_server.log
