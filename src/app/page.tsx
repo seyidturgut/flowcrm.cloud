@@ -18,49 +18,52 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-const trustLogos = ["NOVA STUDIO", "PIXELHIVE", "LUMOS CARE", "ROOTOPS", "ARC COMMERCE"];
+const trustItems = ["NOVA COMMERCE", "PIXELHIVE", "ATLAS LEGAL", "ARC STUDIO", "LUMEN CARE"];
 
 const featureCards = [
   {
-    title: "Lead inbox that stays clean",
-    description: "Capture every form fill, ad response, and referral in one calm workspace your team can scan in seconds.",
-    icon: LayoutDashboard,
-    className: "md:col-span-2",
+    title: "Webhook-first capture",
+    body: "Push every website form, landing page, and campaign response into one clean lead stream.",
+    icon: Webhook,
+    className: "lg:col-span-2",
   },
   {
-    title: "Webhook integrations",
-    description: "Drop one endpoint into your site and route every new lead into FlowCRM automatically.",
-    icon: Webhook,
+    title: "Lead capture clarity",
+    body: "Every submission arrives with source, campaign context, and the details your reps need to act.",
+    icon: LayoutDashboard,
     className: "",
   },
   {
     title: "Sales assignment automation",
-    description: "Auto-distribute leads by source, region, campaign, or rep availability without manual triage.",
+    body: "Route leads by campaign, territory, urgency, or rep availability without manual triage.",
     icon: Users,
     className: "",
   },
   {
-    title: "AI insights for every opportunity",
-    description: "Summaries, urgency signals, and next-step prompts help reps act faster with better context.",
+    title: "AI insights that help reps move",
+    body: "Surface urgency, likely intent, and next-step guidance the moment a lead comes in.",
     icon: Bot,
-    className: "md:col-span-2",
+    className: "lg:col-span-2",
   },
 ];
 
 const steps = [
   {
+    number: "01",
     title: "Connect your website",
-    description: "Add your FlowCRM webhook to forms, landing pages, or any external lead source.",
+    body: "Add a FlowCRM webhook to forms, ads, or any external source in minutes.",
     icon: Globe,
   },
   {
+    number: "02",
     title: "Capture leads automatically",
-    description: "Every submission lands in a structured inbox with source, context, and lead details attached.",
+    body: "Every inbound lead lands in a structured inbox with source and contact data attached.",
     icon: Zap,
   },
   {
+    number: "03",
     title: "Assign and manage instantly",
-    description: "Automation rules send the right lead to the right rep while the team works from one live pipeline.",
+    body: "Rules and AI distribute leads fast so your team spends less time sorting and more time closing.",
     icon: CheckCircle2,
   },
 ];
@@ -70,13 +73,13 @@ const plans = [
     name: "Starter",
     slug: "starter",
     price: "$29",
-    description: "For lean teams that want a faster way to capture and follow up.",
-    label: "Best for new teams",
+    label: "For lean teams",
+    description: "A fast, clean system for businesses that want instant lead capture and follow-up.",
     features: [
-      "300 leads per month",
+      "300 leads / month",
       "2 sales reps",
-      "Webhook capture",
-      "Basic assignment rules",
+      "Webhook intake",
+      "Basic routing rules",
       "AI lead summary",
     ],
     featured: false,
@@ -85,14 +88,14 @@ const plans = [
     name: "Pro",
     slug: "pro",
     price: "$79",
-    description: "For growing sales teams that need automation, speed, and visibility.",
     label: "Most popular",
+    description: "The conversion-focused setup for teams that need speed, routing logic, and visibility.",
     features: [
-      "1,000 leads per month",
+      "1,000 leads / month",
       "7 sales reps",
-      "Advanced routing logic",
+      "Advanced assignment logic",
       "AI lead scoring",
-      "Campaign and source tracking",
+      "Source and campaign tracking",
       "Priority support",
     ],
     featured: true,
@@ -101,14 +104,14 @@ const plans = [
     name: "Enterprise",
     slug: "enterprise",
     price: "$199",
-    description: "For multi-brand and high-volume teams that need control at scale.",
-    label: "For advanced operations",
+    label: "For scale",
+    description: "Built for multi-site, high-volume teams that need more control and custom workflows.",
     features: [
       "Unlimited leads",
       "Unlimited reps",
       "Multi-site management",
       "Full API access",
-      "Custom workflows",
+      "Custom workflow support",
       "Dedicated onboarding",
     ],
     featured: false,
@@ -121,18 +124,86 @@ const stats = [
   { value: "98%", label: "lead capture reliability" },
 ];
 
+const previewLeads = [
+  { name: "Maya Chen", meta: "Pricing page • Pro plan", badge: "High intent" },
+  { name: "Owen Reed", meta: "Meta ads • Demo request", badge: "Needs reply" },
+  { name: "Lena Ortiz", meta: "Landing page • Enterprise", badge: "Assigned" },
+];
+
+const previewRules = [
+  "Enterprise inquiries -> Senior team",
+  "Istanbul leads -> Territory owner",
+  "After-hours forms -> Morning queue",
+];
+
+function SectionEyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="inline-flex items-center gap-2 rounded-full border border-sky-200/80 bg-white/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-700 shadow-sm backdrop-blur">
+      <Sparkles className="size-3.5" />
+      {children}
+    </div>
+  );
+}
+
+function PrimaryCta({ href, children, className = "" }: { href: string; children: React.ReactNode; className?: string }) {
+  return (
+    <Link href={href} className={className}>
+      <Button className="h-12 w-full rounded-full bg-[linear-gradient(135deg,#1b74ff_0%,#1251f4_100%)] px-6 text-sm font-semibold text-white shadow-[0_20px_40px_-16px_rgba(27,116,255,0.78)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_26px_54px_-18px_rgba(27,116,255,0.82)] sm:h-13 sm:text-base">
+        {children}
+      </Button>
+    </Link>
+  );
+}
+
+function SecondaryCta({ href, children, className = "" }: { href: string; children: React.ReactNode; className?: string }) {
+  return (
+    <Link href={href} className={className}>
+      <Button
+        variant="outline"
+        className="h-12 w-full rounded-full border-slate-200 bg-white/85 px-6 text-sm font-semibold text-slate-950 shadow-sm transition duration-300 hover:border-slate-300 hover:bg-white sm:h-13 sm:text-base"
+      >
+        {children}
+      </Button>
+    </Link>
+  );
+}
+
+function FeatureCard({
+  title,
+  body,
+  icon: Icon,
+  className,
+}: {
+  title: string;
+  body: string;
+  icon: React.ComponentType<{ className?: string }>;
+  className?: string;
+}) {
+  return (
+    <div
+      className={`group rounded-[28px] border border-white/80 bg-white/88 p-6 shadow-[0_24px_64px_-38px_rgba(15,23,42,0.28)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_34px_80px_-36px_rgba(15,23,42,0.34)] ${className || ""}`}
+    >
+      <div className="flex size-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#dbeafe_0%,#eff8ff_100%)] text-sky-700 transition duration-300 group-hover:scale-105">
+        <Icon className="size-5" />
+      </div>
+      <h3 className="mt-6 text-xl font-semibold tracking-[-0.03em] text-slate-950">{title}</h3>
+      <p className="mt-3 max-w-md text-sm leading-6 text-slate-600 sm:text-base">{body}</p>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[linear-gradient(180deg,#f7fbff_0%,#f2f7ff_38%,#f8fbff_100%)] text-slate-950">
-      <div className="pointer-events-none fixed inset-x-0 top-0 z-0 h-[34rem] bg-[radial-gradient(circle_at_top,_rgba(22,132,255,0.18),_transparent_55%),radial-gradient(circle_at_20%_20%,_rgba(69,189,255,0.14),_transparent_32%),radial-gradient(circle_at_80%_10%,_rgba(72,117,255,0.12),_transparent_28%)]" />
+    <div className="min-h-screen overflow-x-hidden bg-[linear-gradient(180deg,#f6faff_0%,#eff5ff_42%,#f8fbff_100%)] text-slate-950">
+      <div className="pointer-events-none fixed inset-x-0 top-0 z-0 h-[40rem] bg-[radial-gradient(circle_at_top,_rgba(27,116,255,0.18),_transparent_52%),radial-gradient(circle_at_18%_18%,_rgba(72,189,255,0.16),_transparent_30%),radial-gradient(circle_at_82%_10%,_rgba(92,126,255,0.12),_transparent_26%)]" />
 
-      <header className="sticky top-0 z-40 border-b border-white/60 bg-white/75 backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-white/60 bg-white/78 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-3">
             <Image
               src="/FlowCRM.cloud logo design.webp"
               alt="FlowCRM"
-              width={132}
+              width={134}
               height={34}
               className="h-8 w-auto object-contain"
               priority
@@ -144,7 +215,7 @@ export default function LandingPage() {
               Features
             </Link>
             <Link href="#how-it-works" className="transition hover:text-slate-950">
-              How it works
+              How it Works
             </Link>
             <Link href="#pricing" className="transition hover:text-slate-950">
               Pricing
@@ -153,55 +224,42 @@ export default function LandingPage() {
 
           <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/login">
-              <Button
-                variant="ghost"
-                className="h-10 rounded-full px-4 text-sm font-semibold text-slate-700 hover:bg-slate-100"
-              >
-                Sign in
+              <Button variant="ghost" className="h-10 rounded-full px-4 text-sm font-semibold text-slate-700 hover:bg-slate-100">
+                Sign In
               </Button>
             </Link>
-            <Link href="/register">
-              <Button className="h-10 rounded-full bg-[linear-gradient(135deg,#1674ff_0%,#0f4cf4_100%)] px-5 text-sm font-semibold text-white shadow-[0_14px_30px_-12px_rgba(22,116,255,0.65)] transition hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-12px_rgba(22,116,255,0.7)]">
-                Start free
-              </Button>
-            </Link>
+            <PrimaryCta href="/register" className="hidden sm:block">
+              Get Started
+            </PrimaryCta>
           </div>
         </div>
       </header>
 
       <main className="relative z-10">
         <section className="px-4 pb-16 pt-10 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24">
-          <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+          <div className="mx-auto grid max-w-7xl items-center gap-14 lg:grid-cols-[1.03fr_0.97fr] lg:gap-16">
             <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white/85 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-sky-700 shadow-sm">
-                <Sparkles className="size-3.5" />
-                AI-powered lead operations
-              </div>
+              <SectionEyebrow>AI-powered lead operations</SectionEyebrow>
 
-              <h1 className="mt-6 max-w-xl text-5xl font-semibold leading-[0.95] tracking-[-0.06em] text-slate-950 sm:text-6xl lg:text-7xl">
-                Turn every inbound lead into a faster sales conversation.
+              <h1 className="mt-6 max-w-xl text-5xl font-semibold leading-[0.93] tracking-[-0.065em] text-slate-950 sm:text-6xl lg:text-7xl">
+                Capture every lead. Route it fast. Close with more confidence.
               </h1>
 
               <p className="mt-6 max-w-xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
-                FlowCRM helps service businesses capture leads from any website, score them instantly, and assign the
-                right rep before response time slips away.
+                FlowCRM turns inbound forms, campaigns, and website inquiries into a clean sales pipeline your team can
+                act on immediately.
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href="/register" className="w-full sm:w-auto">
-                  <Button className="h-12 w-full rounded-full bg-[linear-gradient(135deg,#1674ff_0%,#0f4cf4_100%)] px-7 text-base font-semibold text-white shadow-[0_22px_40px_-16px_rgba(22,116,255,0.75)] transition hover:-translate-y-0.5 hover:shadow-[0_28px_52px_-18px_rgba(22,116,255,0.78)] sm:w-auto">
-                    Start free
-                    <ArrowRight className="ml-1 size-4" />
-                  </Button>
-                </Link>
-                <Link href="#pricing" className="w-full sm:w-auto">
-                  <Button
-                    variant="outline"
-                    className="h-12 w-full rounded-full border-slate-200 bg-white/80 px-7 text-base font-semibold text-slate-900 shadow-sm transition hover:border-slate-300 hover:bg-white sm:w-auto"
-                  >
-                    View pricing
-                  </Button>
-                </Link>
+                <PrimaryCta href="/register" className="sm:w-auto">
+                  <span className="inline-flex items-center gap-2">
+                    Get Started
+                    <ArrowRight className="size-4" />
+                  </span>
+                </PrimaryCta>
+                <SecondaryCta href="#pricing" className="sm:w-auto">
+                  View Pricing
+                </SecondaryCta>
               </div>
 
               <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3 text-sm text-slate-600">
@@ -219,7 +277,7 @@ export default function LandingPage() {
                 {stats.map((stat) => (
                   <div
                     key={stat.label}
-                    className="rounded-[22px] border border-white/70 bg-white/80 p-4 shadow-[0_18px_40px_-26px_rgba(15,23,42,0.35)] backdrop-blur"
+                    className="rounded-[22px] border border-white/80 bg-white/82 p-4 shadow-[0_20px_46px_-30px_rgba(15,23,42,0.3)] backdrop-blur"
                   >
                     <div className="text-2xl font-semibold tracking-[-0.04em] text-slate-950">{stat.value}</div>
                     <div className="mt-1 text-sm leading-6 text-slate-600">{stat.label}</div>
@@ -229,12 +287,12 @@ export default function LandingPage() {
             </div>
 
             <div className="relative">
-              <div className="absolute inset-x-10 top-6 h-56 rounded-full bg-[radial-gradient(circle,_rgba(22,116,255,0.2),_transparent_68%)] blur-3xl" />
-              <div className="relative overflow-hidden rounded-[28px] border border-white/70 bg-white/82 p-3 shadow-[0_30px_80px_-34px_rgba(15,23,42,0.35)] backdrop-blur-xl">
-                <div className="rounded-[24px] border border-slate-200/80 bg-[linear-gradient(180deg,#f9fbff_0%,#eef5ff_100%)] p-4 sm:p-5">
-                  <div className="flex items-center justify-between rounded-[20px] border border-white/70 bg-white/80 px-4 py-3 shadow-sm">
+              <div className="absolute inset-x-12 top-8 h-56 rounded-full bg-[radial-gradient(circle,_rgba(27,116,255,0.2),_transparent_68%)] blur-3xl" />
+              <div className="relative overflow-hidden rounded-[30px] border border-white/75 bg-white/84 p-3 shadow-[0_34px_90px_-40px_rgba(15,23,42,0.34)] backdrop-blur-xl">
+                <div className="rounded-[26px] border border-slate-200/80 bg-[linear-gradient(180deg,#fbfdff_0%,#edf5ff_100%)] p-4 sm:p-5">
+                  <div className="flex items-center justify-between rounded-[20px] border border-white/80 bg-white/88 px-4 py-3 shadow-sm">
                     <div>
-                      <div className="text-xs font-medium uppercase tracking-[0.22em] text-slate-400">Live pipeline</div>
+                      <div className="text-[11px] font-medium uppercase tracking-[0.22em] text-slate-400">Live pipeline</div>
                       <div className="mt-1 text-lg font-semibold tracking-[-0.03em] text-slate-950">Today&apos;s inbound flow</div>
                     </div>
                     <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
@@ -242,44 +300,26 @@ export default function LandingPage() {
                     </div>
                   </div>
 
-                  <div className="mt-4 grid gap-4 lg:grid-cols-[1.08fr_0.92fr]">
-                    <div className="rounded-[22px] border border-slate-200/80 bg-slate-950 p-4 text-white shadow-[0_20px_45px_-25px_rgba(15,23,42,0.65)]">
+                  <div className="mt-4 grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
+                    <div className="rounded-[24px] border border-slate-200/80 bg-slate-950 p-4 text-white shadow-[0_22px_48px_-28px_rgba(15,23,42,0.68)]">
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Lead board</div>
+                          <div className="text-[11px] uppercase tracking-[0.22em] text-slate-400">Lead board</div>
                           <div className="mt-1 text-base font-semibold">Assigned in real time</div>
                         </div>
-                        <div className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-medium text-sky-200">
-                          AI active
-                        </div>
+                        <div className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium text-sky-200">AI active</div>
                       </div>
 
                       <div className="mt-4 space-y-3">
-                        {[
-                          {
-                            name: "Maya Chen",
-                            tag: "High intent",
-                            source: "Pricing form • Pro plan",
-                          },
-                          {
-                            name: "Owen Reed",
-                            tag: "Needs follow-up",
-                            source: "Meta ads • Demo request",
-                          },
-                          {
-                            name: "Lena Ortiz",
-                            tag: "Assigned to Sarah",
-                            source: "Landing page • Enterprise",
-                          },
-                        ].map((lead) => (
-                          <div key={lead.name} className="rounded-2xl border border-white/10 bg-white/5 p-3">
+                        {previewLeads.map((lead) => (
+                          <div key={lead.name} className="rounded-2xl border border-white/10 bg-white/5 p-3 transition duration-300 hover:bg-white/8">
                             <div className="flex items-start justify-between gap-3">
                               <div>
                                 <div className="font-medium">{lead.name}</div>
-                                <div className="mt-1 text-sm text-slate-300">{lead.source}</div>
+                                <div className="mt-1 text-sm text-slate-300">{lead.meta}</div>
                               </div>
                               <div className="rounded-full bg-white/10 px-2 py-1 text-[11px] font-medium text-slate-100">
-                                {lead.tag}
+                                {lead.badge}
                               </div>
                             </div>
                           </div>
@@ -288,9 +328,9 @@ export default function LandingPage() {
                     </div>
 
                     <div className="space-y-4">
-                      <div className="rounded-[22px] border border-slate-200/80 bg-white p-4 shadow-sm">
+                      <div className="rounded-[24px] border border-slate-200/80 bg-white p-4 shadow-sm">
                         <div className="flex items-center gap-3">
-                          <div className="flex size-10 items-center justify-center rounded-2xl bg-sky-50 text-sky-600">
+                          <div className="flex size-10 items-center justify-center rounded-2xl bg-sky-50 text-sky-700">
                             <Webhook className="size-5" />
                           </div>
                           <div>
@@ -303,14 +343,10 @@ export default function LandingPage() {
                         </div>
                       </div>
 
-                      <div className="rounded-[22px] border border-slate-200/80 bg-white p-4 shadow-sm">
+                      <div className="rounded-[24px] border border-slate-200/80 bg-white p-4 shadow-sm">
                         <div className="text-sm font-medium text-slate-500">Assignment logic</div>
                         <div className="mt-3 space-y-3">
-                          {[
-                            "Enterprise inquiries -> Senior team",
-                            "Istanbul leads -> Territory owner",
-                            "After-hours forms -> Morning queue",
-                          ].map((rule) => (
+                          {previewRules.map((rule) => (
                             <div key={rule} className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-2">
                               <span className="text-sm text-slate-700">{rule}</span>
                               <ChevronRight className="size-4 text-slate-400" />
@@ -319,11 +355,11 @@ export default function LandingPage() {
                         </div>
                       </div>
 
-                      <div className="rounded-[22px] border border-slate-200/80 bg-[linear-gradient(135deg,#eff6ff_0%,#ffffff_100%)] p-4 shadow-sm">
+                      <div className="rounded-[24px] border border-slate-200/80 bg-[linear-gradient(135deg,#edf5ff_0%,#ffffff_100%)] p-4 shadow-sm">
                         <div className="text-sm font-medium text-slate-500">AI insight</div>
                         <p className="mt-2 text-sm leading-6 text-slate-700">
-                          “Pricing-page visits and urgency language suggest a high-close opportunity. Assign within 5
-                          minutes.”
+                          &ldquo;Pricing-page visits and urgency language suggest a high-close opportunity. Assign within 5
+                          minutes.&rdquo;
                         </p>
                       </div>
                     </div>
@@ -334,15 +370,15 @@ export default function LandingPage() {
           </div>
         </section>
 
-        <section className="border-y border-slate-200/80 bg-white/70 px-4 py-6 backdrop-blur sm:px-6 lg:px-8">
+        <section className="border-y border-slate-200/80 bg-white/74 px-4 py-6 backdrop-blur sm:px-6 lg:px-8">
           <div className="mx-auto flex max-w-7xl flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-400">
-              Teams using FlowCRM to move faster
+            <div className="text-[11px] font-semibold uppercase tracking-[0.28em] text-slate-400">
+              Built for teams that move fast
             </div>
-            <div className="grid grid-cols-2 gap-3 text-sm font-semibold text-slate-500 sm:grid-cols-5 sm:gap-6">
-              {trustLogos.map((logo) => (
-                <div key={logo} className="rounded-2xl border border-slate-200/80 bg-white px-4 py-3 text-center">
-                  {logo}
+            <div className="grid grid-cols-2 gap-3 text-sm font-semibold text-slate-500 sm:grid-cols-5 sm:gap-5">
+              {trustItems.map((item) => (
+                <div key={item} className="rounded-2xl border border-slate-200/80 bg-white px-4 py-3 text-center shadow-sm">
+                  {item}
                 </div>
               ))}
             </div>
@@ -352,65 +388,52 @@ export default function LandingPage() {
         <section className="px-4 py-20 sm:px-6 lg:px-8" id="features">
           <div className="mx-auto max-w-7xl">
             <div className="max-w-2xl">
-              <div className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-700">Why teams switch</div>
-              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl">
-                One place to capture, route, and act on every lead.
+              <SectionEyebrow>Why FlowCRM</SectionEyebrow>
+              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl">
+                One operating system for inbound leads.
               </h2>
               <p className="mt-5 text-base leading-7 text-slate-600 sm:text-lg">
-                The landing page should sell clarity. The product should deliver it. FlowCRM gives your team both.
+                Designed for service businesses that need better visibility, faster assignment, and cleaner sales motion.
               </p>
             </div>
 
-            <div className="mt-12 grid gap-4 md:grid-cols-3 lg:gap-5">
-              {featureCards.map((feature) => {
-                const Icon = feature.icon;
-                return (
-                  <div
-                    key={feature.title}
-                    className={`group rounded-[28px] border border-white/80 bg-white/85 p-6 shadow-[0_22px_60px_-34px_rgba(15,23,42,0.28)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_-30px_rgba(15,23,42,0.33)] ${feature.className}`}
-                  >
-                    <div className="flex size-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#dbeafe_0%,#eef8ff_100%)] text-sky-700 transition group-hover:scale-105 group-hover:bg-[linear-gradient(135deg,#bfdbfe_0%,#dff4ff_100%)]">
-                      <Icon className="size-5" />
-                    </div>
-                    <h3 className="mt-6 text-xl font-semibold tracking-[-0.03em] text-slate-950">{feature.title}</h3>
-                    <p className="mt-3 max-w-md text-sm leading-6 text-slate-600 sm:text-base">{feature.description}</p>
-                  </div>
-                );
-              })}
+            <div className="mt-12 grid gap-4 lg:grid-cols-3 lg:gap-5">
+              {featureCards.map((feature) => (
+                <FeatureCard key={feature.title} {...feature} />
+              ))}
             </div>
           </div>
         </section>
 
         <section className="px-4 py-20 sm:px-6 lg:px-8" id="how-it-works">
-          <div className="mx-auto max-w-7xl rounded-[32px] border border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(239,246,255,0.82)_100%)] p-6 shadow-[0_28px_80px_-42px_rgba(15,23,42,0.35)] sm:p-8 lg:p-10">
-            <div className="grid gap-10 lg:grid-cols-[0.86fr_1.14fr] lg:items-start">
+          <div className="mx-auto max-w-7xl rounded-[34px] border border-slate-200/80 bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(238,246,255,0.86)_100%)] p-6 shadow-[0_30px_80px_-44px_rgba(15,23,42,0.3)] sm:p-8 lg:p-10">
+            <div className="grid gap-10 lg:grid-cols-[0.84fr_1.16fr] lg:items-start">
               <div className="max-w-md">
-                <div className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-700">How it works</div>
-                <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-4xl">
-                  Set up your lead flow once. Let the system handle the busywork.
+                <SectionEyebrow>How it Works</SectionEyebrow>
+                <h2 className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-4xl">
+                  Set it up once. Let the system do the sorting.
                 </h2>
                 <p className="mt-4 text-base leading-7 text-slate-600">
-                  From website capture to rep assignment, FlowCRM keeps the path simple enough for fast teams and
-                  structured enough for scale.
+                  FlowCRM keeps the lead journey clear from first submission to first conversation.
                 </p>
               </div>
 
               <div className="grid gap-4 md:grid-cols-3">
-                {steps.map((step, index) => {
+                {steps.map((step) => {
                   const Icon = step.icon;
                   return (
                     <div
-                      key={step.title}
-                      className="rounded-[28px] border border-white/75 bg-white p-5 shadow-[0_20px_40px_-28px_rgba(15,23,42,0.28)]"
+                      key={step.number}
+                      className="rounded-[28px] border border-white/80 bg-white p-5 shadow-[0_22px_46px_-30px_rgba(15,23,42,0.24)] transition duration-300 hover:-translate-y-1"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex size-12 items-center justify-center rounded-2xl bg-slate-950 text-white">
                           <Icon className="size-5" />
                         </div>
-                        <div className="text-sm font-semibold text-slate-400">0{index + 1}</div>
+                        <div className="text-sm font-semibold text-slate-400">{step.number}</div>
                       </div>
-                      <h3 className="mt-6 text-lg font-semibold text-slate-950">{step.title}</h3>
-                      <p className="mt-3 text-sm leading-6 text-slate-600">{step.description}</p>
+                      <h3 className="mt-6 text-lg font-semibold tracking-[-0.03em] text-slate-950">{step.title}</h3>
+                      <p className="mt-3 text-sm leading-6 text-slate-600">{step.body}</p>
                     </div>
                   );
                 })}
@@ -421,9 +444,9 @@ export default function LandingPage() {
 
         <section className="px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.08fr_0.92fr] lg:items-center">
-            <div className="overflow-hidden rounded-[32px] border border-slate-200/80 bg-slate-950 p-4 shadow-[0_34px_80px_-36px_rgba(15,23,42,0.55)] sm:p-5">
-              <div className="relative overflow-hidden rounded-[26px] border border-white/10 bg-slate-900">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.15),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(59,130,246,0.22),_transparent_34%)]" />
+            <div className="overflow-hidden rounded-[34px] border border-slate-200/80 bg-slate-950 p-4 shadow-[0_36px_80px_-42px_rgba(15,23,42,0.64)] sm:p-5">
+              <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-slate-900">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.16),_transparent_30%),radial-gradient(circle_at_bottom_right,_rgba(37,99,235,0.24),_transparent_34%)]" />
                 <div className="relative aspect-[16/10]">
                   <Image src="/hero-mockup.png" alt="FlowCRM dashboard preview" fill className="object-cover opacity-90" />
                 </div>
@@ -431,22 +454,21 @@ export default function LandingPage() {
             </div>
 
             <div className="max-w-xl">
-              <div className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-700">Product preview</div>
-              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl">
-                A dashboard your reps can understand on the first scroll.
+              <SectionEyebrow>Product Preview</SectionEyebrow>
+              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl">
+                A dashboard your sales team can read at a glance.
               </h2>
               <p className="mt-5 text-base leading-7 text-slate-600 sm:text-lg">
-                Critical lead context, ownership, AI summaries, and routing status are visible without digging through
-                tabs. That means quicker follow-up and fewer dropped opportunities.
+                The information that matters most stays visible: source, ownership, urgency, and next action.
               </p>
 
               <div className="mt-8 space-y-4">
                 {[
-                  "See lead source, urgency, and ownership in one view.",
-                  "Keep the team aligned with clear assignment and response state.",
-                  "Move from lead capture to action with fewer clicks and less friction.",
+                  "See source, lead intent, and ownership in one clean view.",
+                  "Keep reps aligned with clear assignment and follow-up state.",
+                  "Move from capture to action with fewer clicks and less friction.",
                 ].map((item) => (
-                  <div key={item} className="flex items-start gap-3 rounded-2xl bg-white/80 p-4 shadow-sm">
+                  <div key={item} className="flex items-start gap-3 rounded-2xl bg-white/85 p-4 shadow-sm">
                     <div className="mt-0.5 flex size-6 items-center justify-center rounded-full bg-sky-100 text-sky-700">
                       <Check className="size-3.5" />
                     </div>
@@ -461,30 +483,30 @@ export default function LandingPage() {
         <section className="px-4 py-20 sm:px-6 lg:px-8" id="pricing">
           <div className="mx-auto max-w-7xl">
             <div className="mx-auto max-w-2xl text-center">
-              <div className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-700">Pricing</div>
-              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl">
+              <SectionEyebrow>Pricing</SectionEyebrow>
+              <h2 className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-slate-950 sm:text-5xl">
                 Clear plans that make the next step obvious.
               </h2>
               <p className="mt-5 text-base leading-7 text-slate-600 sm:text-lg">
-                Each plan is designed around faster lead response, cleaner assignment, and stronger conversion.
+                Choose the setup that matches your lead volume and the speed your team needs.
               </p>
             </div>
 
-            <div className="-mx-4 mt-12 overflow-x-auto px-4 pb-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
-              <div className="flex snap-x snap-mandatory gap-4 sm:grid sm:grid-cols-3 sm:gap-5">
+            <div className="-mx-4 mt-12 overflow-x-auto px-4 pb-4 [scrollbar-width:none]">
+              <div className="flex snap-x snap-mandatory gap-4 lg:grid lg:grid-cols-3 lg:gap-5">
                 {plans.map((plan) => (
                   <div
                     key={plan.name}
-                    className={`min-w-[84vw] snap-center rounded-[30px] border p-6 shadow-[0_28px_70px_-42px_rgba(15,23,42,0.3)] transition duration-300 hover:scale-[1.01] sm:min-w-0 sm:p-7 ${
+                    className={`min-w-[84vw] snap-center rounded-[30px] border p-6 shadow-[0_30px_72px_-42px_rgba(15,23,42,0.32)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_36px_84px_-38px_rgba(15,23,42,0.36)] sm:min-w-[26rem] lg:min-w-0 ${
                       plan.featured
-                        ? "border-sky-300 bg-[linear-gradient(180deg,#1674ff_0%,#0f4cf4_100%)] text-white shadow-[0_32px_70px_-34px_rgba(22,116,255,0.75)]"
-                        : "border-white/80 bg-white/88 text-slate-950"
+                        ? "border-sky-300 bg-[linear-gradient(180deg,#1b74ff_0%,#1251f4_100%)] text-white shadow-[0_34px_80px_-34px_rgba(27,116,255,0.76)]"
+                        : "border-white/80 bg-white/90 text-slate-950"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div>
                         <div
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${
+                          className={`inline-flex rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] ${
                             plan.featured ? "bg-white/14 text-white" : "bg-slate-100 text-slate-600"
                           }`}
                         >
@@ -493,8 +515,8 @@ export default function LandingPage() {
                         <h3 className="mt-5 text-2xl font-semibold tracking-[-0.04em]">{plan.name}</h3>
                       </div>
                       {plan.featured ? (
-                        <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-700">
-                          Most popular
+                        <div className="rounded-full bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-700">
+                          Pro
                         </div>
                       ) : null}
                     </div>
@@ -511,13 +533,13 @@ export default function LandingPage() {
                     <div className="mt-8">
                       <Link href={`/register?plan=${plan.slug}`}>
                         <Button
-                          className={`h-12 w-full rounded-full text-sm font-semibold shadow-sm transition ${
+                          className={`h-12 w-full rounded-full text-sm font-semibold transition duration-300 ${
                             plan.featured
-                              ? "bg-white text-sky-700 hover:bg-sky-50"
-                              : "bg-[linear-gradient(135deg,#1674ff_0%,#0f4cf4_100%)] text-white shadow-[0_16px_30px_-18px_rgba(22,116,255,0.7)] hover:-translate-y-0.5"
+                              ? "bg-white text-sky-700 shadow-[0_18px_40px_-20px_rgba(255,255,255,0.9)] hover:bg-sky-50"
+                              : "bg-[linear-gradient(135deg,#1b74ff_0%,#1251f4_100%)] text-white shadow-[0_18px_40px_-20px_rgba(27,116,255,0.72)] hover:-translate-y-0.5"
                           }`}
                         >
-                          Get started
+                          Get Started
                         </Button>
                       </Link>
                     </div>
@@ -544,26 +566,25 @@ export default function LandingPage() {
         </section>
 
         <section className="px-4 pb-28 pt-8 sm:px-6 lg:px-8 lg:pb-24">
-          <div className="mx-auto max-w-7xl overflow-hidden rounded-[36px] border border-slate-200/80 bg-[linear-gradient(135deg,#071327_0%,#0d1b39_45%,#123d91_100%)] px-6 py-10 text-white shadow-[0_36px_80px_-44px_rgba(15,23,42,0.8)] sm:px-10 sm:py-14">
+          <div className="mx-auto max-w-7xl overflow-hidden rounded-[36px] border border-slate-200/70 bg-[linear-gradient(135deg,#071328_0%,#0e1e41_42%,#1550af_100%)] px-6 py-10 text-white shadow-[0_36px_88px_-44px_rgba(15,23,42,0.84)] sm:px-10 sm:py-14">
             <div className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
               <div className="max-w-2xl">
-                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-100">
+                <div className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-100">
                   <Star className="size-3.5" />
                   Built for high-intent lead teams
                 </div>
                 <h2 className="mt-5 text-3xl font-semibold tracking-[-0.05em] sm:text-5xl">
                   Start managing your leads smarter today.
                 </h2>
-                <p className="mt-5 max-w-xl text-base leading-7 text-sky-50/85 sm:text-lg">
-                  Capture more opportunities, route them faster, and give your sales team a system they will actually
-                  enjoy using.
+                <p className="mt-5 max-w-xl text-base leading-7 text-sky-50/88 sm:text-lg">
+                  Capture more opportunities, route them faster, and give your team a system they actually want to use.
                 </p>
               </div>
 
               <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
                 <Link href="/register">
                   <Button className="h-12 w-full rounded-full bg-white px-6 text-sm font-semibold text-sky-700 hover:bg-sky-50 sm:w-auto">
-                    Start free
+                    Get Started
                   </Button>
                 </Link>
                 <Link href="/login">
@@ -571,7 +592,7 @@ export default function LandingPage() {
                     variant="outline"
                     className="h-12 w-full rounded-full border-white/20 bg-white/10 px-6 text-sm font-semibold text-white hover:bg-white/16 sm:w-auto"
                   >
-                    Sign in
+                    Sign In
                   </Button>
                 </Link>
               </div>
@@ -580,18 +601,18 @@ export default function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-slate-200/80 bg-white/80 px-4 py-10 backdrop-blur sm:px-6 lg:px-8">
+      <footer className="border-t border-slate-200/80 bg-white/82 px-4 py-10 backdrop-blur sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="max-w-md">
             <Image
               src="/FlowCRM.cloud logo design.webp"
               alt="FlowCRM"
-              width={132}
+              width={134}
               height={34}
               className="h-8 w-auto object-contain"
             />
             <p className="mt-3 text-sm leading-6 text-slate-600">
-              FlowCRM helps modern sales teams capture, assign, and convert leads without losing speed.
+              FlowCRM helps modern teams capture, assign, and convert inbound leads without losing speed.
             </p>
           </div>
 
@@ -599,31 +620,30 @@ export default function LandingPage() {
             <Link href="#features" className="transition hover:text-slate-950">
               Features
             </Link>
+            <Link href="#how-it-works" className="transition hover:text-slate-950">
+              How it Works
+            </Link>
             <Link href="#pricing" className="transition hover:text-slate-950">
               Pricing
             </Link>
             <Link href="/login" className="transition hover:text-slate-950">
-              Sign in
-            </Link>
-            <Link href="/register" className="transition hover:text-slate-950">
-              Get started
+              Sign In
             </Link>
           </div>
         </div>
       </footer>
 
       <div className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200/80 bg-white/92 p-3 backdrop-blur-xl md:hidden">
-        <div className="mx-auto flex max-w-md items-center gap-3">
-          <Link href="/register" className="flex-1">
-            <Button className="h-12 w-full rounded-full bg-[linear-gradient(135deg,#1674ff_0%,#0f4cf4_100%)] text-sm font-semibold text-white shadow-[0_18px_34px_-18px_rgba(22,116,255,0.72)]">
-              Start free
-            </Button>
-          </Link>
-          <Link href="#pricing" className="flex-1">
-            <Button variant="outline" className="h-12 w-full rounded-full border-slate-200 bg-white text-sm font-semibold text-slate-900">
-              Pricing
-            </Button>
-          </Link>
+        <div className="mx-auto grid max-w-md grid-cols-[1fr_auto] gap-3">
+          <PrimaryCta href="/register">
+            <span className="inline-flex items-center gap-2">
+              Get Started
+              <ArrowRight className="size-4" />
+            </span>
+          </PrimaryCta>
+          <SecondaryCta href="#pricing" className="w-auto">
+            Pricing
+          </SecondaryCta>
         </div>
       </div>
     </div>
