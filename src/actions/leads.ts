@@ -2,8 +2,9 @@
 
 import prisma from "@/lib/prisma";
 import { getTenantId } from "@/lib/tenant";
-import { LeadStatus } from "@prisma/client";
+import { LeadStatus, NotificationEntityType, NotificationPriority, NotificationType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { createNotificationForUser } from "@/lib/notifications/service";
 
 export async function updateLeadStatus(leadId: string, status: LeadStatus) {
   const company_id = await getTenantId();
@@ -29,9 +30,12 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus) {
 export async function reassignLead(leadId: string, salesRepId: string | null) {
   const company_id = await getTenantId();
 
-  await prisma.lead.update({
+  const updatedLead = await prisma.lead.update({
     where: { id: leadId, company_id },
     data: { sales_rep_id: salesRepId },
+    include: {
+      contact: true,
+    },
   });
 
   // Log system note
@@ -47,6 +51,37 @@ export async function reassignLead(leadId: string, salesRepId: string | null) {
       author_id: "system",
     },
   });
+
+  if (salesRepId) {
+    const assignedRep = await prisma.salesRep.findFirst({
+      where: {
+        id: salesRepId,
+        company_id,
+      },
+      select: {
+        userId: true,
+      },
+    });
+
+    if (assignedRep) {
+      const leadName = `${updatedLead.contact.firstName} ${updatedLead.contact.lastName}`.trim();
+
+      try {
+        await createNotificationForUser({
+          companyId: company_id,
+          userId: assignedRep.userId,
+          type: NotificationType.LEAD_ASSIGNED,
+          title: "A new lead was assigned to you",
+          message: leadName ? `${leadName} was added to your queue.` : "A new lead was added to your queue.",
+          entityType: NotificationEntityType.LEAD,
+          entityId: leadId,
+          priority: NotificationPriority.MEDIUM,
+        });
+      } catch (error) {
+        console.error("Failed to create lead assignment notification", error);
+      }
+    }
+  }
 
   revalidatePath(`/leads/${leadId}`);
 }

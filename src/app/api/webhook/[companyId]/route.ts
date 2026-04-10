@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { Prisma } from "@prisma/client";
+import { NotificationEntityType, NotificationPriority, NotificationType } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { analyzeLeadQuality, extractLeadDataFromPayload, matchLeadToSalesRep } from "@/lib/ai";
 import { normalizeLeadSource, normalizeLeadSourceUrl } from "@/lib/lead-source";
+import { createNotificationsForCompanyAdmins } from "@/lib/notifications/service";
 
 function asOptionalString(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
@@ -166,6 +168,21 @@ export async function POST(
       data: { status: "processed" },
     });
 
+    const leadName = `${lead.contact.firstName} ${lead.contact.lastName}`.trim();
+
+    try {
+      await createNotificationsForCompanyAdmins(companyId, {
+        type: NotificationType.LEAD_CREATED,
+        title: "New lead received",
+        message: leadName ? `${leadName} was captured from a webhook source.` : "A new lead was captured from a webhook source.",
+        entityType: NotificationEntityType.LEAD,
+        entityId: lead.id,
+        priority: NotificationPriority.MEDIUM,
+      });
+    } catch (notificationError) {
+      console.error("Failed to create new lead notifications", notificationError);
+    }
+
     return NextResponse.json({
       success: true,
       message: "Lead processed via AI extraction",
@@ -183,6 +200,19 @@ export async function POST(
         error: error instanceof Error ? error.message : "Unknown error"
       },
     });
+
+    try {
+      await createNotificationsForCompanyAdmins(companyId, {
+        type: NotificationType.WEBHOOK_ERROR,
+        title: "Webhook error",
+        message: error instanceof Error ? error.message : "An unknown webhook processing error occurred.",
+        entityType: NotificationEntityType.WEBHOOK,
+        entityId: log.id,
+        priority: NotificationPriority.HIGH,
+      });
+    } catch (notificationError) {
+      console.error("Failed to create webhook error notifications", notificationError);
+    }
 
     return NextResponse.json({ 
       error: "Processing failed", 

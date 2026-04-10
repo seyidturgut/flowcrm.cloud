@@ -59,14 +59,16 @@ export async function getDashboardStats() {
     totalLeads,
     todayLeads,
     unassignedLeads,
-    leadsByRep: leadsByRep.map(rep => ({
-      name: rep.user.name || rep.user.email,
+    leadsByRep: leadsByRep.map((rep) => ({
+      name: rep.user?.name || rep.user?.email || "Temsilci",
       count: rep._count.leads
     })),
-    recentLeads: recentLeads.map(lead => ({
+    recentLeads: recentLeads.map((lead) => ({
       id: lead.id,
-      customer: `${lead.contact.firstName} ${lead.contact.lastName}`,
-      email: lead.contact.email,
+      customer: lead.contact
+        ? `${lead.contact.firstName} ${lead.contact.lastName}`.trim() || "İsimsiz Lead"
+        : "İsimsiz Lead",
+      email: lead.contact?.email || null,
       createdAt: lead.createdAt
     }))
   };

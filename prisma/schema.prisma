@@ -16,6 +16,24 @@ enum Plan {
   ENTERPRISE
 }
 
+enum NotificationType {
+  LEAD_CREATED  @map("lead_created")
+  LEAD_ASSIGNED @map("lead_assigned")
+  WEBHOOK_ERROR @map("webhook_error")
+}
+
+enum NotificationEntityType {
+  LEAD    @map("lead")
+  WEBHOOK @map("webhook")
+  SYSTEM  @map("system")
+}
+
+enum NotificationPriority {
+  LOW    @map("low")
+  MEDIUM @map("medium")
+  HIGH   @map("high")
+}
+
 model Company {
   id              String           @id @default(cuid())
   name            String
@@ -31,6 +49,7 @@ model Company {
   leadNotes       LeadNote[]
   assignmentRules AssignmentRule[]
   webhookLogs     WebhookLog[]
+  notifications   Notification[]
 
   @@map("companies")
 }
@@ -49,6 +68,8 @@ model User {
   company       Company   @relation(fields: [company_id], references: [id], onDelete: Cascade)
   
   salesRep      SalesRep?
+  notifications Notification[]
+  notificationPreference NotificationPreference?
 
   @@map("users")
 }
@@ -176,4 +197,39 @@ model WebhookLog {
   company       Company   @relation(fields: [company_id], references: [id], onDelete: Cascade)
 
   @@map("webhook_logs")
+}
+
+model Notification {
+  id          String                 @id @default(cuid())
+  company_id  String
+  company     Company                @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  user_id     String
+  user        User                   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  type        NotificationType
+  title       String
+  message     String                 @db.Text
+  entity_type NotificationEntityType
+  entity_id   String?
+  is_read     Boolean                @default(false)
+  priority    NotificationPriority   @default(MEDIUM)
+  created_at  DateTime               @default(now())
+
+  @@index([company_id])
+  @@index([user_id])
+  @@index([user_id, is_read, created_at(sort: Desc)])
+  @@index([company_id, created_at(sort: Desc)])
+  @@map("notifications")
+}
+
+model NotificationPreference {
+  id                   String   @id @default(cuid())
+  user_id              String   @unique
+  user                 User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  new_lead_enabled     Boolean  @default(true)
+  lead_assigned_enabled Boolean @default(true)
+  webhook_error_enabled Boolean @default(true)
+  in_app_enabled       Boolean  @default(true)
+  sound_enabled        Boolean  @default(false)
+
+  @@map("notification_preferences")
 }

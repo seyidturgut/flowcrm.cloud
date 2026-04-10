@@ -6,7 +6,6 @@ import {
   Search, 
   User, 
   LogOut, 
-  Bell, 
   HelpCircle,
   ChevronDown,
   Settings,
@@ -32,6 +31,8 @@ import {
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { logout } from "@/actions/auth";
+import { NotificationBell } from "@/components/notifications/notification-bell";
+import type { SessionPayload } from "@/lib/session";
 
 const items = [
   { title: "Panel", url: "/dashboard", icon: LayoutDashboard },
@@ -44,7 +45,11 @@ const items = [
 
 import Image from "next/image";
 
-export function Header({ user }: { user?: any }) {
+type HeaderUser = Pick<SessionPayload, "email" | "role" | "isGlobalAdmin"> & {
+  name?: string | null;
+};
+
+export function Header({ user }: { user?: HeaderUser | null }) {
   const pathname = usePathname();
   const isBoss = user?.isGlobalAdmin || user?.email === "seyitturgut@gmail.com";
 
@@ -118,10 +123,7 @@ export function Header({ user }: { user?: any }) {
       </div>
 
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="h-10 w-10 border border-white/5 rounded-xl hover:bg-white/5 relative">
-          <Bell className="h-5 w-5 text-muted-foreground" />
-          <span className="absolute top-2 right-2 h-2 w-2 bg-primary rounded-full border-2 border-background animate-pulse" />
-        </Button>
+        <NotificationBell />
         <Button variant="ghost" size="icon" className="h-10 w-10 border border-white/5 rounded-xl hover:bg-white/5 hidden sm:flex">
           <HelpCircle className="h-5 w-5 text-muted-foreground" />
         </Button>
