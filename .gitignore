@@ -46,3 +46,6 @@ next-env.d.ts
 SONv1.zip
 database_dump.sql
 .next_server.log
+
+# Local agent worktrees
+.claude/
